@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>get_web</title>
+    <style>
+      /* Add your CSS styles here */
+      #website {
+        width: 300px;
+        padding: 10px;
+        margin: 20px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      
+      }
+    </style>
+    <script>
+      // 等待DOM完全加载后再执行
+          document.addEventListener("DOMContentLoaded", function() {
+            // 使用 const/let 声明变量
+            const input = document.getElementById("website");
+            const button = document.querySelector("button");
+    
+            if (input) {
+              input.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  // 改为表单提交或AJAX请求
+                  window.location.href = `get\\${encodeURIComponent(input.value)}`;
+                } else if (event.key === "Escape") {
+                  input.value = "";
+                }
+              });
+            }
+            
+            if (button)  {
+              button.addEventListener("click", function() {
+                // 改为表单提交或AJAX请求
+                window.location.href = `?website=${encodeURIComponent(input.value)}`;
+              });
+            }
+          });
+    </script>
+    </head>
+    <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+        </ul>
+      </nav>
+      </header>
+      <main>
+        <label for="website">Website:</label>
+        <input type="text" id="website" name="website" placeholder="Enter website">
+        <button type="button">Search</button>
+      </main>
+      </body>
+</html>
