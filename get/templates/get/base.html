@@ -12,7 +12,6 @@
         margin: 20px 0;
         border: 1px solid #ccc;
         border-radius: 4px;
-      
       }
     </style>
     <script>
@@ -27,7 +26,7 @@
                 if (event.key === "Enter") {
                   event.preventDefault();
                   // 改为表单提交或AJAX请求
-                  window.location.href = `get\\${encodeURIComponent(input.value)}`;
+                  window.location.href = `/get/${encodeURIComponent(input.value)}`;
                 } else if (event.key === "Escape") {
                   input.value = "";
                 }
@@ -37,7 +36,7 @@
             if (button)  {
               button.addEventListener("click", function() {
                 // 改为表单提交或AJAX请求
-                window.location.href = `?website=${encodeURIComponent(input.value)}`;
+                window.location.href = `/get/${encodeURIComponent(input.value)}`;
               });
             }
           });

@@ -1,3 +1,4 @@
+"""http requests module with fixed input handling and colorized output."""
 import requests
 import functools
 import colorama
