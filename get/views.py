@@ -1,20 +1,19 @@
 import os
 from django.shortcuts import render
-from . import get_requests
 import colorama
+from . import get_requests
 from . import headle_URL
 
 # Create your views here.
 colorama.init(autoreset=True)
 
+TEMPLATES = list()
+
 def index(request):
-    try:
-        if os.path.exists("get/templates/get/project/"):
-            for file in os.listdir("get/templates/get/project"):
-                os.remove(os.path.join("get/templates/get/project", file))
-    except Exception as e:
-        print(f"{colorama.Fore.RED}Error cleaning project directory: {e}")
     return render(request, 'get/base.html', {})
+
+def append(template):
+    TEMPLATES.append(template)
 
 def get(request, website):
     import urllib.parse
@@ -24,31 +23,22 @@ def get(request, website):
     try:
 
         request = get_requests.get(decoded_website)
-        
-        os.makedirs("get/templates/get/project", exist_ok=True)
-        with open("get/templates/get/project/index.html",
-                  "w",
-                   encoding=request.encoding) as f:
-            print(f"{colorama.Fore.GREEN}Encoding: {request.encoding}")
-            f.write(request.text)
 
-        headle_url = headle_URL.headle_text(request.text, decoded_website)
-
-
-        for i in headle_url:
-            file_path = f"get/templates/get/project/{i}"
+        headle_url = headle_URL.multiple_requests(request.url)
+        for url in headle_url(request.text):
+            file_path = f"get/templates/get/project/{url}"
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             try:
-                request = get_requests.get(i)
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
             except Exception as e:
-                print(f"{colorama.Fore.RED}Error matched URL: {i} Error: {e}")
+                print(f"{colorama.Fore.RED}Error matched URL: {url} Error: {e}")
             with open(file_path, "w", encoding=request.encoding) as f:
                 try:
                     f.write(request.text)
                 except Exception as e:
                     print(f"{colorama.Fore.RED}Error writed to file\tfile_name: {f.name} Error: {e}")
                 else:
-                    print(f"{colorama.Fore.GREEN}Correctly matched URL: {i}\nWrited to file: {f.name}")
+                    print(f"{colorama.Fore.GREEN}Correctly matched URL: {url}\nWrited to file: {f.name}")
         print(headle_url)
         return render(request, "get/base.html", {})
     except Exception as e:

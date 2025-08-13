@@ -1,10 +1,7 @@
 """http requests module with fixed input handling and colorized output."""
-from typing import Iterable
 import requests
 import functools
 import colorama
-from headle_URL import headle_text
-from requests import Response
 
 ENCODING = "utf-8"
 VERIFY = True
@@ -98,18 +95,3 @@ def options(inputs, data=None):
     request.encoding = request.apparent_encoding
     print(f"{colorama.Fore.GREEN}Request status code: {request.status_code}")
     return request
-
-def multiple_requests(funt: callable , urls: str|list) -> Iterable[str, Response]:
-    urls = list(urls)
-
-    for url in urls:
-        try:
-            request: Response = funt(url)
-        except Exception as e:
-            print(f"{colorama.Fore.RED}Error fetching URL: {url} Error: {e}")
-            continue
-        else:
-            yield (request.url, request)
-            print(f"{colorama.Fore.GREEN}Successfully fetched URL: {url}")
-            multiple_requests(funt, headle_text(request.text, url))
-    
