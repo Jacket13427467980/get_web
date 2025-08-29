@@ -26,7 +26,9 @@
                 if (event.key === "Enter") {
                   event.preventDefault();
                   // 改为表单提交或AJAX请求
-                  window.location.href = `/get/${encodeURIComponent(input.value)}`;
+                  if (input.value.trim() !== "") {
+                    window.location.href = `/get/${encodeURIComponent(input.value)}`;
+                  }
                 } else if (event.key === "Escape") {
                   input.value = "";
                 }
@@ -36,7 +38,9 @@
             if (button)  {
               button.addEventListener("click", function() {
                 // 改为表单提交或AJAX请求
-                window.location.href = `/get/${encodeURIComponent(input.value)}`;
+                if (input.value.trim() !== "") {
+                  window.location.href = `/get/${encodeURIComponent(input.value)}`;
+                }
               });
             }
           });
@@ -55,9 +59,18 @@
       <input type="text" id="website" name="website" placeholder="Enter website">
       <button type="button">Search</button>
       <div>
-        <ul>
-          
-        </ul>
+        {% if responses == None %}
+          <div>
+            <h2>Results</h2>
+            <ul>
+              {% for response in response %}
+                <li><a href="{% url 'resource:resource' response.id %}">{{ response.url }}</a></li>
+              {% empty %}
+                <li>No results found.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
       </div>
     </main>
   </body>

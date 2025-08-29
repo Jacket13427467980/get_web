@@ -18,7 +18,7 @@ requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.
 
 def fix_input(func):
     @functools.wraps(func)
-    def fixed(inputs, data=None):
+    def fixed(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
         if not inputs.startswith("http"):
             inputs = "http://" + inputs
         if not inputs.endswith("/"):
@@ -28,7 +28,7 @@ def fix_input(func):
     return fixed
 
 @fix_input
-def get(inputs, data=None):
+def get(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
     request = requests.get(inputs, headers=headers, data=data, verify=VERIFY, timeout=TIME_OUT)
     # request.encoding = ENCODING  # Set the encoding to utf-8
     request.encoding = request.apparent_encoding 
@@ -36,8 +36,7 @@ def get(inputs, data=None):
     return request
 
 @fix_input
-def post(inputs, data=None):
-
+def post(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
         ,
@@ -50,7 +49,7 @@ def post(inputs, data=None):
     print(f"{colorama.Fore.GREEN}Request status code: {request.status_code}")
     return request
 
-def put(inputs, data=None):
+def put(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
 
 
     request = requests.put(inputs, json=data, headers=headers, verify=VERIFY, timeout=TIME_OUT)
@@ -69,7 +68,7 @@ def delete(inputs, data=None):
     return request
 
 @fix_input
-def patch(inputs, data=None):
+def patch(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
 
     request = requests.patch(inputs, json=data, data=data, headers=headers, verify=VERIFY, timeout=TIME_OUT)
     # request.encoding = ENCODING  # Set the encoding to utf-8
@@ -79,7 +78,7 @@ def patch(inputs, data=None):
 
 
 @fix_input
-def head(inputs, data=None):
+def head(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
 
     request = requests.head(inputs, headers=headers, data=data, verify=VERIFY, timeout=TIME_OUT)
     # request.encoding = ENCODING  # Set the encoding to utf-8
@@ -88,7 +87,7 @@ def head(inputs, data=None):
     return request
 
 @fix_input
-def options(inputs, data=None):
+def options(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
 
     request = requests.options(inputs, headers=headers, data=data, verify=VERIFY, timeout=TIME_OUT)
     # request.encoding = ENCODING  # Set the encoding to utf-8

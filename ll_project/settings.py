@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # Custom apps
     "get",
+    "resource",
     
     # Default Django apps
     "django.contrib.admin",

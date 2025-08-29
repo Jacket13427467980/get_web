@@ -5,5 +5,6 @@ app_name = "get"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("get/<path:website>/", views.get, name="get"),
-]
+    path("get/<path:_website>/", views.get, name="get"),
+    path("api/get/<path:url>/", views.get_response, name="get_response")
+]    

@@ -1,6 +1,9 @@
+"""Headle the URL and get the response"""
+
 import re
 from requests import Response
 import colorama
+import sys
 
 from . import get_requests
 
@@ -17,6 +20,7 @@ def headle(text: str, mode=1):
         return WORD3.findall(text)
 
 def headle_text(responses: Response|list[Response]):
+    sys.setrecursionlimit(10000)
     responses: list[Response] = list(responses)
     total_return = list()
     
@@ -29,20 +33,29 @@ def headle_text(responses: Response|list[Response]):
     return total_return
     
 
-def multiple_requests(urls: str|list, requester: callable=get_requests.get, headler: callable=headle_text) -> list[Response]:
-    urls = list(urls)
+def multiple_requests(urls: list,
+                      headers:any=None,
+                      data:any=None,
+                      verify:bool=get_requests.VERIFY,
+                      requester: callable=get_requests.get,
+                      headler: callable=headle_text):
     requested_objects:list[Response] = list()
+    print(f"{colorama.Fore.LIGHTMAGENTA_EX}Is ready to fetch URLs: {urls}")
+    
+    responses: list[Response] = []
+    for url in urls:
+        print(f"fetching {url}", end=" ")
+        try:
+            response = requester(url)
+        except Exception as e:
+            print(f"{colorama.Fore.RED}Error fetching URL Error: {e}")
+            # raise
+        else:
+            print(f"{colorama.Fore.GREEN}Successfully fetched URL{responses}")
+            requested_objects.extend(response)
+            urls = [request.url for request in responses if request.url not in [obj.url for obj in requested_objects]]
 
-    try:
-        requests = [requester(url) for url in urls if requester(url) not in requested_objects]
-    except Exception as e:
-        print(f"{colorama.Fore.RED}Error fetching URL Error: {e}")
-        # raise
-    else:
-        print(f"{colorama.Fore.GREEN}Successfully fetched URL")
-        requested_objects.extend(requests)
-        urls = [request.url for request in requests if request.url not in [obj.url for obj in requested_objects]]
-
-        multiple_requests(urls, requester, headler)
+    multiple_requests(urls, headers, data, verify, requester, headler)
         
+    print(f"{colorama.Fore.GREEN}Successfully fetched all URLs {requested_objects}")
     return requested_objects
