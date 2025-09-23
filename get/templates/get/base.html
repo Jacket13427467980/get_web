@@ -21,14 +21,17 @@
             const input = document.getElementById("website");
             const button = document.querySelector("button");
     
+            function handleSearch() {
+              if (input.value.trim() !== "") {
+                window.location.href = `/get/${encodeURIComponent(input.value)}`;
+              }
+            }
+
             if (input) {
               input.addEventListener("keydown", function(event) {
                 if (event.key === "Enter") {
                   event.preventDefault();
-                  // 改为表单提交或AJAX请求
-                  if (input.value.trim() !== "") {
-                    window.location.href = `/get/${encodeURIComponent(input.value)}`;
-                  }
+                  handleSearch();
                 } else if (event.key === "Escape") {
                   input.value = "";
                 }
@@ -36,12 +39,7 @@
             }
             
             if (button)  {
-              button.addEventListener("click", function() {
-                // 改为表单提交或AJAX请求
-                if (input.value.trim() !== "") {
-                  window.location.href = `/get/${encodeURIComponent(input.value)}`;
-                }
-              });
+              button.addEventListener("click", handleSearch);
             }
           });
     </script>
@@ -59,7 +57,7 @@
       <input type="text" id="website" name="website" placeholder="Enter website">
       <button type="button">Search</button>
       <div>
-        {% if responses == None %}
+        {% if response %}
           <div>
             <h2>Results</h2>
             <ul>
@@ -70,7 +68,12 @@
               {% endfor %}
             </ul>
           </div>
+        {% else %}
+          <div>No emtry</div>
         {% endif %}
+        <script>
+          
+        </script>
       </div>
     </main>
   </body>
