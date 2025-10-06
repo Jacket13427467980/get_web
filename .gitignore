@@ -1,0 +1,6 @@
+ll_env/
+static/
+db.sqlite3
+.rules/
+__pycache__/
+web_templates/

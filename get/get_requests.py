@@ -24,6 +24,8 @@ def fix_input(func):
         if not inputs.endswith("/"):
             inputs = inputs + "/"
         print(f"{colorama.Fore.GREEN}Fixed input: {inputs}")
+        print(f"{colorama.Fore.LIGHTMAGENTA_EX}Is ready to fetch URL: {inputs}")
+
         return func(inputs, data=data)
     return fixed
 
@@ -49,6 +51,7 @@ def post(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
     print(f"{colorama.Fore.GREEN}Request status code: {request.status_code}")
     return request
 
+@fix_input
 def put(inputs, data=None, headers=headers, verify=VERIFY, timeout=TIME_OUT):
 
 

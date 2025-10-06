@@ -1,8 +1,13 @@
 """Headle the URL and get the response"""
 
 import re
+import shutil
 from requests import Response
 import colorama
+from pathlib import Path
+from urllib.parse import quote
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import hashlib
 
 try:
     from . import get_requests
@@ -44,41 +49,52 @@ def headle_text(response: Response) -> set:
 
     return total_return
     
-requested_urls = list()
-requested_objects:list[Response] = list()
+WEB_TEMPLATES_DIR = Path("web_templates")
+WEB_TEMPLATES_DIR.mkdir(exist_ok=True)
+
+def url_to_filename(url: str) -> str:
+    """将URL安全地转换为文件名（使用md5哈希）"""
+    h = hashlib.md5(url.encode('utf-8')).hexdigest()
+    return h
+
 def multiple_requests(urls: list,
                       headers:any=None,
                       data:any=None,
                       verify:bool=get_requests.VERIFY,
                       requester: callable=get_requests.get,
                       headler: callable=headle_text):
-    global requested_urls, requested_objects
+    requested_urls = list()
+    requested_objects:list[Response] = list()
+    shutil.rmtree(WEB_TEMPLATES_DIR, ignore_errors=True)
+    WEB_TEMPLATES_DIR.mkdir(exist_ok=True)
 
-    print(f"{colorama.Fore.LIGHTMAGENTA_EX}Is ready to fetch URLs: {urls}")
-    responses: list[Response] = list()
-    for url in urls:
-        print(f"fetching {url}", end=" ")
-        try:
-            if url not in requested_urls:
-                response: Response = requester(url)
-        except Exception as e:
-            print(f"{colorama.Fore.RED}Error fetching URL Error: {e}")
-            # raise
-        else:
-            if response.status_code >= 200 and response.status_code < 300:
-                requested_objects.append(response)
-            print(f"{colorama.Fore.GREEN}Successfully fetched URL and got: {response.reason} with status code {response.status_code}")
-        finally:
-            requested_urls.append(url)
 
-    urls = set()
-    for response in responses:
-        urls.update(set(headler(response)))
-    
-    urls = list(set(urls | {response.url for response in requested_objects} | set(urls)))
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        future_to_url = {executor.submit(requester, url, headers=headers, data=data, verify=verify): url for url in urls if url not in requested_urls}
+        while future_to_url:
+            for future in as_completed(future_to_url):
+                url = future_to_url.pop(future)
+                try:
+                    response: Response = future.result()
+                except Exception as e:
+                    print(f"{colorama.Fore.RED}Error fetching URL {url}: {e}")
+                else:
+                    requested_objects.append(response)
+                    print(f"{colorama.Fore.GREEN}Successfully fetched URL {url} and got: {response.reason} with status code {response.status_code}")
+                    new_urls = list(set(headler(response)))
+                    if new_urls:
+                        print(f"{colorama.Fore.CYAN}Discovered new URLs from {url}: {len(new_urls)}")
+                        urls.extend(new_urls)
+                        urls = list(set(urls))
+                    # Ensure directory exists
+                    safe_filename = url_to_filename(response.url)
+                    file_path = WEB_TEMPLATES_DIR / safe_filename
+                    file_path.touch()
+                    file_path.write_text(response.text, encoding=response.encoding if response.encoding else "utf-8")
+                finally:
+                    requested_urls.append(url)
+                    print(f"{colorama.Fore.YELLOW}Remaining URLs to fetch: {len(requested_urls)}")
+            future_to_url = {executor.submit(requester, url, headers=headers, data=data, verify=verify): url for url in urls if url not in requested_urls}
 
-    if urls:
-        multiple_requests(urls, headers, data, verify, requester, headler)
-        
     print(f"{colorama.Fore.GREEN}Successfully fetched all URLs {requested_objects}")
     return requested_objects
